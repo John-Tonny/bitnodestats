@@ -1,0 +1,26 @@
+{% extends "nodestats/base.html" %}
+{% block title %}Blocksize{% endblock %}
+{% block head %}<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>{% endblock %}
+{% block main %}
+  <div id="chart" style="width: 800px; height: 600px;"></div>
+  <script>
+      var data = [
+          {
+              x: [{% for t in times %}'{{ t|date:"Y-m-d H:m:s" }}',
+                  {% endfor %}],
+              y: [{% for diff in blocksize %}{{ diff }},
+                  {% endfor %}],
+              type: 'scatter',
+              name: 'blocksize',
+              mode: 'lines',
+              line: {shape: 'spline', smoothing: 1000}
+          }
+
+      ];
+      var layout = {
+          xaxis: {title: 'Time'},
+          yaxis: {title: 'Blocksize [byte]'}
+      };
+Plotly.newPlot('chart', data, layout);
+  </script>
+{% endblock %}

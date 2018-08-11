@@ -1,0 +1,39 @@
+{% extends "nodestats/base.html" %}
+{% block title %}Segwit activation{% endblock %}
+{% block head %}<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>{% endblock %}
+{% block main %}
+  <div id="chart" style="width: 800px; height: 600px;"></div>
+  <script>
+      var data = [
+          {
+              x: [{% for t in times %}'{{ t|date:"Y-m-d H:m:s" }}',
+                  {% endfor %}],
+              y: [{% for sw144 in segwit_average_144 %}{{ sw144 }},
+                  {% endfor %}],
+              type: 'scatter',
+              name: 'segwit block percentage average 144'
+          },
+          {
+              x: [{% for t in times %}'{{ t|date:"Y-m-d H:m:s" }}',
+              {% endfor %}],
+              y: [{% for sw2016 in segwit_average_2016 %}{{ sw2016 }},
+                  {% endfor %}],
+              type: 'scatter',
+              name: 'segwit block percentage average 2016'
+          },
+          {
+              x: [{% for t in times %}'{{ t|date:"Y-m-d H:m:s" }}',
+              {% endfor %}],
+              y: [{% for bip91 in bip91_average_144 %}{{ bip91 }},
+                  {% endfor %}],
+              type: 'scatter',
+              name: 'bip91 block percentage average 144'
+          }
+      ];
+      var layout = {
+          xaxis: {title: 'Time'},
+          yaxis: {title: 'Segwit Signaling %'}
+      };
+Plotly.newPlot('chart', data, layout);
+  </script>
+{% endblock %}

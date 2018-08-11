@@ -1,0 +1,27 @@
+{% extends "nodestats/base.html" %}
+{% block title %}Blockheight{% endblock %}
+{% block head %}<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>{% endblock %}
+{% block main %}
+  <div id="chart" style="width: 600px; height: 600px;"></div>
+  <script>
+      var data = [
+          {
+            x: [{% for t in times %}'{{ t|date:"Y-m-d H:i:s" }}',
+                {% endfor %}],
+            y: [{% for bh in blockheights %}{{ bh }},
+                {% endfor %}],
+            mode: 'lines+markers'
+          }
+      ];
+      var layout = {
+          xaxis: {
+              title: 'Time'
+          },
+          yaxis: {
+              title: 'Blockheight',
+              tickformat: '.1'
+          }
+      };
+Plotly.newPlot('chart', data, layout);
+  </script>
+{% endblock %}

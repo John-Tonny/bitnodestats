@@ -1,0 +1,30 @@
+body {
+    font-family: 'Arial';
+    margin: 0px;
+}
+
+header {
+    color: white;
+    background-color: #006ec0;
+    padding: 10px;
+}
+
+header > a {
+    display: inline-block;
+    color: white;
+}
+.infobox {
+    border-style: dotted;
+    padding: 10px;
+    margin: 10px;
+    position: absolute;
+}
+
+.twocolumns {
+    columns: 2;
+}
+
+dt {
+    font-weight: bold;
+}
+

@@ -1,0 +1,59 @@
+# get ubuntu packages
+sudo apt-get install nginx build-essential python-dev git virtualenv python3-pip
+sudo pip3 install uwsgi
+
+# make new user and environment
+sudo adduser bitnodestats --shell /bin/bash
+sudo su bitnodestats
+virtualenv -p python3 ~/envs/bitnodestats
+source ~/envs/bitnodestats/bin/activate
+echo "export DJANGO_SETTINGS_MODULE=Bitnodestats.settings.production" >> ~/.bashrc
+echo "source ~/envs/bitnodestats/bin/activate" >> ~/.bashrc
+
+# get source code
+cd
+git clone https://github.com/pik0r/bitnodestats
+
+# install packages
+cd bitnodestats
+pip3 install --upgrade -r requirements.txt
+
+# establish database
+export DJANGO_SETTINGS_MODULE=Bitnodestats.settings.production
+python3 manage.py makemigrations
+python3 manage.py migrate
+python3 manage.py createsuperuser
+
+# carry out tests (fails for webserver tests)
+python3 manage.py test
+
+# create new secret key:
+python3 manage.py shell -c 'from django.core.management import utils; print(utils.get_random_secret_key())'
+
+# populate database with data (takes a long time)
+python3 manage.py blocks_update
+python3 manage.py statistics_update
+
+# handle static files
+sudo mkdir /var/www/bitnodestats
+sudo chown bitnodestats:bitnodestats /var/www/bitnodestats
+python3 manage.py collectstatic
+
+# configure nginx
+sudo ln -s /home/bitnodestats/bitnodestats/contrib/nginx.conf /etc/nginx/sites-enabled/bitnodestats.conf
+
+# set up uwsgi with systemctl
+# https://luxagraf.net/src/how-set-django-uwsgi-systemd-debian-8
+sudo mkdir -p /etc/uwsgi/vassals
+sudo ln -s /home/bitnodestats/bitnodestats/contrib/uwsgi.service /etc/systemd/system/uwsgi.service
+sudo ln -s /home/bitnodestats/bitnodestats/contrib/emperor.ini /etc/uwsgi/emperor.ini
+sudo ln -s /home/bitnodestats/bitnodestats/contrib/uwsgi.ini /etc/uwsgi/vassals/bitnodestats.ini
+sudo systemctl enable uwsgi.service
+sudo systemctl start uwsgi
+sudo systemctl reload nginx.service
+
+# add cronjobs to gather data
+python3 manage.py crontab add
+# add to head of crontab
+SHELL=/bin/bash
+DJANGO_SETTINGS_MODULE="Bitnodestats.settings.production"

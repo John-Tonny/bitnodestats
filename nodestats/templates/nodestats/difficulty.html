@@ -1,0 +1,67 @@
+{% extends "nodestats/base.html" %}
+{% block title %}Difficulty and Hashrate{% endblock %}
+{% block head %}<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>{% endblock %}
+{% block main %}
+  <div id="chart" style="width: 800px; height: 600px;"></div>
+  <script>
+      var data = [
+          {
+              x: [{% for t in times %}'{{ t|date:"Y-m-d H:m:s" }}',
+                  {% endfor %}],
+              y: [{% for diff in difficulty %}{{ diff }},
+                  {% endfor %}],
+              smoothing : 0,
+              yaxis: 'y',
+              name: 'difficulty'
+          },
+          {
+              x: [{% for t in times %}'{{ t|date:"Y-m-d H:m:s" }}',
+              {% endfor %}],
+              y: [{% for hash in hashrate144 %}{{ hash }},
+                  {% endfor %}],
+              shape : 'spline',
+              smoothing : 1.0,
+              yaxis: 'y2',
+              name: 'hashrate144'
+          },
+          {
+              x: [{% for t in times %}'{{ t|date:"Y-m-d H:m:s" }}',
+              {% endfor %}],
+              y: [{% for hash in hashrate1008 %}{{ hash }},
+                  {% endfor %}],
+              shape : 'spline',
+              smoothing : 1.0,
+              type: 'scatter',
+              yaxis: 'y2',
+              name: 'hashrate1008'
+          },
+          {
+              x: [{% for t in times %}'{{ t|date:"Y-m-d H:m:s" }}',
+              {% endfor %}],
+              y: [{% for hash in hashrate2016 %}{{ hash }},
+                  {% endfor %}],
+              shape : 'spline',
+              smoothing : 1.0,
+              yaxis: 'y2',
+              name: 'hashrate2016'
+          }
+
+      ];
+      var layout = {
+          xaxis: {title: 'Time'},
+          yaxis: {
+              title: 'Difficulty',
+              range: [{{ min_diff }}, {{ max_diff }}]
+          },
+          yaxis2: {
+              title: 'Hashrate [hashes / second]',
+              titlefont: {color: 'rgb(148, 103, 189)'},
+              tickfont: {color: 'rgb(148, 103, 189)'},
+              overlaying: 'y',
+              side: 'right',
+              range: [{{ min_hash }}, {{ max_hash }}]
+          }
+      };
+Plotly.newPlot('chart', data, layout);
+  </script>
+{% endblock %}
